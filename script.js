@@ -145,7 +145,7 @@ const Budget = {
         const settings = {
             monthlyAllowance: totalBudget,
             weekendMultiplier: weekendMultiplier,
-            currency: '$'
+            currency: 'Rs '
         };
         Storage.saveSettings(settings);
     },
@@ -253,10 +253,10 @@ const UI = {
                 <div class="bento-card card-budget">
                     <h3>Today's Budget</h3>
                     <div class="progress-ring-container">
-                        <svg class="progress-ring" width="180" height="180">
-                            <circle class="progress-ring-circle-bg" cx="90" cy="90" r="${radius}"></circle>
-                            <circle class="progress-ring-circle" cx="90" cy="90" r="${radius}" 
-                                style="stroke-dashoffset: ${offset}"></circle>
+                        <svg class="progress-ring" width="220" height="220">
+                            <circle class="progress-ring-circle-bg" cx="110" cy="110" r="${radius}"></circle>
+                            <circle class="progress-ring-circle" cx="110" cy="110" r="${radius}" 
+                                style="stroke-dasharray: ${circumference}; stroke-dashoffset: ${offset}"></circle>
                         </svg>
                         <div style="position: absolute; text-align: center;">
                             <div class="budget-value">${data.currency}${Math.floor(data.dailyBudget)}</div>
@@ -320,7 +320,7 @@ const UI = {
                                     <div style="font-size: 0.75rem; color: var(--text-muted);">${entry.action}</div>
                                 </div>
                                 <div style="text-align: right;">
-                                    <div style="font-weight: 600;">$${entry.spent.toFixed(0)}</div>
+                                    <div style="font-weight: 600;">Rs ${entry.spent.toFixed(0)}</div>
                                     <div style="font-size: 0.75rem; color: ${entry.diff >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'};">
                                         ${entry.diff >= 0 ? '+' : ''}${entry.diff.toFixed(0)}
                                     </div>
@@ -528,6 +528,12 @@ async function init() {
     if (!userSettings) {
         UI.showView('onboarding');
     } else {
+        // Migration: Force currency update if old
+        if (userSettings.currency === '$' || userSettings.currency === '₹') {
+            userSettings.currency = 'Rs ';
+            Storage.saveSettings(userSettings);
+        }
+
         Budget.recalculateDailyBudget(); // Ensure numbers are fresh
         UI.showView('dashboard');
     }

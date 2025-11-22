@@ -1,27 +1,30 @@
 :root {
-    /* Premium Dark Theme - Antigravity */
-    --bg-primary: #0f172a;
-    --bg-secondary: #1e293b;
-    --glass-bg: rgba(30, 41, 59, 0.7);
-    --glass-border: rgba(255, 255, 255, 0.1);
+    /* Warm Theme - Brown & Orange */
+    --bg-primary: #1a120b;
+    /* Dark Coffee */
+    --bg-secondary: rgba(255, 200, 150, 0.05);
+    --glass-bg: rgba(40, 25, 20, 0.8);
+    /* Dark Brown Glass */
+    --glass-border: rgba(255, 150, 50, 0.1);
 
     /* Accents */
-    --accent-primary: #3b82f6;
-    /* Blue */
-    --accent-secondary: #8b5cf6;
-    /* Purple */
-    --accent-green: #10b981;
-    --accent-red: #ef4444;
+    --accent-primary: #ff9f43;
+    /* Orange */
+    --accent-secondary: #d35400;
+    /* Burnt Orange */
+    --accent-green: #2ecc71;
+    --accent-red: #e74c3c;
 
     /* Text */
-    --text-primary: #f8fafc;
-    --text-secondary: #94a3b8;
-    --text-muted: #64748b;
+    --text-primary: #ffffff;
+    --text-secondary: #e0d0c0;
+    /* Warm gray */
+    --text-muted: #a09080;
 
     /* Spacing & Radius */
-    --radius-sm: 8px;
-    --radius-md: 12px;
-    --radius-lg: 24px;
+    --radius-sm: 4px;
+    --radius-md: 8px;
+    --radius-lg: 12px;
     --radius-full: 9999px;
 }
 
@@ -29,22 +32,19 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Chakra Petch', sans-serif;
 }
 
 body {
     background-color: var(--bg-primary);
-    /* Starry background effect */
-    background-image:
-        radial-gradient(white, rgba(255, 255, 255, .2) 2px, transparent 3px),
-        radial-gradient(white, rgba(255, 255, 255, .15) 1px, transparent 2px),
-        radial-gradient(white, rgba(255, 255, 255, .1) 2px, transparent 3px);
-    background-size: 550px 550px, 350px 350px, 250px 250px;
-    background-position: 0 0, 40px 60px, 130px 270px;
+    background-image: url('pic1.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    background-repeat: no-repeat;
     color: var(--text-primary);
     min-height: 100vh;
     overflow: hidden;
-    /* Prevent scrolling */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -52,7 +52,7 @@ body {
 
 #app {
     width: 100%;
-    max-width: 1000px;
+    max-width: 1200px;
     height: 100vh;
     padding: 2rem;
     position: relative;
@@ -62,11 +62,11 @@ body {
 /* Glassmorphism Utilities */
 .glass-panel {
     background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border);
     border-radius: var(--radius-lg);
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
 }
 
 /* Bento Grid Layout */
@@ -80,19 +80,21 @@ body {
 }
 
 .bento-card {
-    background: var(--glass-bg);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--glass-border);
-    border-radius: var(--radius-lg);
+    background: linear-gradient(145deg, rgba(50, 30, 20, 0.95), rgba(30, 15, 10, 0.98));
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-md);
     padding: 1.5rem;
     display: flex;
     flex-direction: column;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
 }
 
 .bento-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6);
+    border-color: var(--accent-primary);
 }
 
 .bento-card h3 {
@@ -100,23 +102,23 @@ body {
     font-weight: 600;
     margin-bottom: 1rem;
     color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 /* Specific Card Spans */
 .card-budget {
     grid-column: span 1;
     grid-row: span 2;
-    /* Tall card */
     justify-content: center;
     align-items: center;
     text-align: center;
-    background: linear-gradient(145deg, rgba(30, 41, 59, 0.8), rgba(15, 23, 42, 0.9));
+    background: linear-gradient(145deg, rgba(50, 30, 20, 0.96), rgba(30, 15, 10, 0.98));
 }
 
 .card-calendar {
     grid-column: span 2;
     grid-row: span 2;
-    /* Large central card */
 }
 
 .card-stats {
@@ -130,24 +132,25 @@ body {
 }
 
 /* Progress Ring */
-.progress-ring-container {
-    position: relative;
-    width: 180px;
-    height: 180px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 1rem;
-}
-
 .progress-ring {
     transform: rotate(-90deg);
 }
 
+.progress-ring-container {
+    position: relative;
+    width: 220px;
+    height: 220px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto;
+}
+
 .progress-ring-circle-bg {
-    stroke: rgba(255, 255, 255, 0.05);
+    stroke: rgba(255, 150, 50, 0.1);
     stroke-width: 8;
     fill: transparent;
+    stroke-linecap: round;
 }
 
 .progress-ring-circle {
@@ -155,24 +158,26 @@ body {
     stroke-width: 8;
     fill: transparent;
     stroke-linecap: round;
-    stroke-dasharray: 502;
-    /* 2 * PI * 80 */
-    stroke-dashoffset: 502;
     transition: stroke-dashoffset 1s ease;
-    filter: drop-shadow(0 0 4px var(--accent-primary));
+    filter: drop-shadow(0 0 8px var(--accent-primary));
 }
 
 .budget-value {
-    font-size: 3rem;
+    font-size: 2.5rem;
+    /* Reduced slightly to prevent overflow */
     font-weight: 700;
     line-height: 1;
     color: var(--text-primary);
+    text-shadow: 0 0 10px rgba(255, 159, 67, 0.3);
+    margin-bottom: 5px;
 }
 
 .budget-label {
     font-size: 0.9rem;
     color: var(--text-muted);
     margin-top: 0.5rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 /* Calendar */
@@ -189,6 +194,7 @@ body {
     font-size: 0.8rem;
     color: var(--text-muted);
     padding-bottom: 0.5rem;
+    font-weight: 600;
 }
 
 .calendar-day {
@@ -201,18 +207,21 @@ body {
     font-size: 0.9rem;
     color: var(--text-muted);
     position: relative;
+    border: 1px solid transparent;
     transition: all 0.2s;
 }
 
 .calendar-day:hover {
     background: rgba(255, 255, 255, 0.08);
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .calendar-day.today {
-    background: var(--accent-primary);
+    background: var(--accent-secondary);
     color: white;
     font-weight: bold;
-    box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 15px rgba(211, 84, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .calendar-day.active {
@@ -225,15 +234,17 @@ body {
     bottom: 4px;
     width: 4px;
     height: 4px;
-    border-radius: 50%;
+    border-radius: 0;
 }
 
 .status-dot.success {
     background: var(--accent-green);
+    box-shadow: 0 0 5px var(--accent-green);
 }
 
 .status-dot.danger {
     background: var(--accent-red);
+    box-shadow: 0 0 5px var(--accent-red);
 }
 
 /* History List */
@@ -252,42 +263,48 @@ body {
     padding: 12px;
     background: rgba(255, 255, 255, 0.03);
     border-radius: var(--radius-sm);
+    border-left: 2px solid transparent;
     transition: background 0.2s;
 }
 
 .history-item:hover {
     background: rgba(255, 255, 255, 0.06);
+    border-left-color: var(--accent-primary);
 }
 
 /* Buttons */
 .btn {
     padding: 12px 24px;
-    border-radius: 100px;
+    border-radius: var(--radius-sm);
     border: none;
     font-weight: 600;
     cursor: pointer;
     transition: all 0.2s;
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Chakra Petch', sans-serif;
+    text-transform: uppercase;
+    letter-spacing: 1px;
 }
 
 .btn-primary {
     background: var(--accent-primary);
-    color: white;
-    box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+    color: black;
+    box-shadow: 0 0 15px rgba(255, 159, 67, 0.2);
 }
 
 .btn-primary:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 25px rgba(255, 159, 67, 0.4);
 }
 
 .btn-secondary {
     background: rgba(255, 255, 255, 0.1);
     color: white;
+    border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .btn-secondary:hover {
     background: rgba(255, 255, 255, 0.15);
+    border-color: white;
 }
 
 /* Floating Action Button */
@@ -301,21 +318,22 @@ body {
 .btn-fab {
     width: 60px;
     height: 60px;
-    border-radius: 50%;
-    background: var(--accent-primary);
+    border-radius: var(--radius-md);
+    background: var(--accent-secondary);
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.5rem;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    border: none;
+    box-shadow: 0 10px 30px rgba(211, 84, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.2);
     cursor: pointer;
-    transition: transform 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .btn-fab:hover {
     transform: scale(1.1) rotate(90deg);
+    box-shadow: 0 0 30px rgba(211, 84, 0, 0.6);
 }
 
 /* Animations */
@@ -341,25 +359,76 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.1);
+    background: rgba(0, 0, 0, 0.3);
 }
 
 ::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 10px;
+    background: var(--accent-secondary);
+    border-radius: 0;
 }
 
 /* Inputs */
 input,
 select {
-    font-family: 'Outfit', sans-serif;
+    font-family: 'Chakra Petch', sans-serif;
     border-radius: var(--radius-sm) !important;
     border: 1px solid rgba(255, 255, 255, 0.1) !important;
-    background: rgba(0, 0, 0, 0.2) !important;
+    background: rgba(0, 0, 0, 0.3) !important;
 }
 
 input:focus,
 select:focus {
     outline: none;
     border-color: var(--accent-primary) !important;
+    box-shadow: 0 0 10px rgba(255, 159, 67, 0.1);
+}
+
+/* Responsive Layout */
+@media (max-width: 1000px) {
+    .bento-grid {
+        grid-template-columns: repeat(2, 1fr);
+        grid-template-rows: auto;
+    }
+
+    .card-budget {
+        grid-column: span 2;
+        grid-row: span 1;
+        min-height: 300px;
+    }
+
+    .card-calendar {
+        grid-column: span 2;
+        grid-row: span 1;
+    }
+
+    .card-stats {
+        grid-column: span 1;
+    }
+
+    .card-history {
+        grid-column: span 1;
+    }
+}
+
+@media (max-width: 600px) {
+    .bento-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .card-budget,
+    .card-calendar,
+    .card-stats,
+    .card-history {
+        grid-column: span 1;
+    }
+
+    #app {
+        height: auto;
+        overflow-y: auto;
+    }
+
+    body {
+        overflow-y: auto;
+        align-items: flex-start;
+    }
 }
