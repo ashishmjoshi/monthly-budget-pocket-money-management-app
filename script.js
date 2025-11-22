@@ -54,29 +54,27 @@ const Budget = {
         if (!settings || !state) return 0;
 
         const today = new Date();
-        const currentDay = today.getDate();
-        const currentMonth = today.getMonth();
         const currentYear = today.getFullYear();
+        const currentMonth = today.getMonth();
         const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
-        // Calculate remaining days (including today)
-        let remainingDays = 0;
-        let weekendDays = 0;
-
-        for (let d = currentDay; d <= daysInMonth; d++) {
-            remainingDays++;
+        // Calculate Total Weighted Days for the FULL Month
+        let totalWeekendDays = 0;
+        for (let d = 1; d <= daysInMonth; d++) {
             const date = new Date(currentYear, currentMonth, d);
             const dayOfWeek = date.getDay();
-            if (dayOfWeek === 0 || dayOfWeek === 6) { // 0=Sun, 6=Sat
-                weekendDays++;
+            if (dayOfWeek === 0 || dayOfWeek === 6) {
+                totalWeekendDays++;
             }
         }
 
-        const weekdayDays = remainingDays - weekendDays;
         const multiplier = settings.weekendMultiplier || 1;
+        const totalWeekdayDays = daysInMonth - totalWeekendDays;
+        const weightedTotalDays = totalWeekdayDays + (totalWeekendDays * multiplier);
 
-        // Weighted sum of days
-        const weightedTotalDays = weekdayDays + (weekendDays * multiplier);
+        // Calculate Base Rate based on Monthly Allowance
+        // This ensures consistency (e.g., 2000 / 30 days) regardless of start date
+        const baseDailyBudget = settings.monthlyAllowance / weightedTotalDays;
 
         // Calculate Temporary Deductions
         let dailyDeduction = 0;
@@ -89,19 +87,19 @@ const Budget = {
             Storage.saveState(state);
         }
 
-        const availableBudget = state.totalRemaining - (state.savingsPot || 0);
-
-        if (weightedTotalDays <= 0) return 0;
-
-        const baseDailyBudget = availableBudget / weightedTotalDays;
-
         // Determine today's budget
         const todayDay = today.getDay();
         const isWeekend = todayDay === 0 || todayDay === 6;
 
         let todayBudget = isWeekend ? baseDailyBudget * multiplier : baseDailyBudget;
-
         todayBudget -= dailyDeduction;
+
+        // Cap at available funds (cannot spend what you don't have)
+        const availableBudget = state.totalRemaining - (state.savingsPot || 0);
+
+        // If available budget is critically low, switch to survival mode (spread remaining)
+        // But normally, stick to the monthly rate to prevent "Rich Start" syndrome
+        todayBudget = Math.min(todayBudget, availableBudget);
 
         return Math.max(0, Math.floor(todayBudget * 100) / 100);
     },
