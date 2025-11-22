@@ -180,9 +180,6 @@ const UI = {
             case 'dashboard':
                 this.renderDashboard();
                 break;
-            case 'history':
-                this.renderHistory();
-                break;
             default:
                 this.appContainer.innerHTML = '<h2>Error: View not found</h2>';
         }
@@ -234,64 +231,133 @@ const UI = {
 
     renderDashboard() {
         const data = Budget.getBudgetDetails();
+        const state = Storage.getState();
+        const history = state.dailyHistory || [];
+
+        // Calculate Progress (Radius 80)
+        const progressPercent = data.dailyBudget > 0 ? 100 : 0;
+        const radius = 80;
+        const circumference = 2 * Math.PI * radius;
+        const offset = circumference - (progressPercent / 100) * circumference;
 
         const section = document.createElement('section');
         section.className = 'view active animate-fade-in';
-        section.innerHTML = `
-            <div class="glass-panel" style="text-align: center; margin-bottom: 1.5rem;">
-                <h3 style="color: var(--text-secondary); font-weight: 400;">Today's Budget</h3>
-                <h1 style="font-size: 3.5rem; color: var(--accent-primary); margin: 0.5rem 0;">
-                    ${data.currency}${data.dailyBudget.toFixed(2)}
-                </h1>
-                <p style="font-size: 0.9rem; color: var(--text-muted);">Spend wisely!</p>
-            </div>
+        section.style.height = '100%';
+        section.style.width = '100%';
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 2rem;">
-                <div class="glass-panel" style="padding: 1rem; text-align: center;">
-                    <h4 style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Remaining</h4>
-                    <h2 style="font-size: 1.5rem;">${data.currency}${data.totalRemaining.toFixed(2)}</h2>
-                </div>
-                <div class="glass-panel" style="padding: 1rem; text-align: center;">
-                    <h4 style="font-size: 0.9rem; color: var(--text-secondary); margin-bottom: 0.5rem;">Savings Pot</h4>
-                    <h2 style="font-size: 1.5rem; color: var(--success);">${data.currency}${data.savingsPot.toFixed(2)}</h2>
-                </div>
-            </div>
-
-            <div class="glass-panel" style="margin-bottom: 2rem;">
-                <h3 style="font-size: 1.1rem; margin-bottom: 1rem;">Suggested for You</h3>
-                <div id="activity-suggestion" style="display: flex; align-items: center; gap: 1rem;">
-                    <div style="font-size: 2rem;">${this.getActivityIcon(data.dailyBudget)}</div>
-                    <div>
-                        <strong style="display: block; color: var(--text-primary);">${this.getActivityTitle(data.dailyBudget)}</strong>
-                        <span style="font-size: 0.9rem; color: var(--text-secondary);">${this.getActivityDescription(data.dailyBudget)}</span>
+        // Bento Grid HTML
+        let html = `
+            <div class="bento-grid">
+                
+                <!-- Card 1: Daily Budget (Tall Left) -->
+                <div class="bento-card card-budget">
+                    <h3>Today's Budget</h3>
+                    <div class="progress-ring-container">
+                        <svg class="progress-ring" width="180" height="180">
+                            <circle class="progress-ring-circle-bg" cx="90" cy="90" r="${radius}"></circle>
+                            <circle class="progress-ring-circle" cx="90" cy="90" r="${radius}" 
+                                style="stroke-dashoffset: ${offset}"></circle>
+                        </svg>
+                        <div style="position: absolute; text-align: center;">
+                            <div class="budget-value">${data.currency}${Math.floor(data.dailyBudget)}</div>
+                            <div class="budget-label">Daily Limit</div>
+                        </div>
+                    </div>
+                    <div style="margin-top: 1rem;">
+                        <div style="font-size: 0.9rem; color: var(--text-muted);">${this.getActivityTitle(data.dailyBudget)}</div>
                     </div>
                 </div>
+
+                <!-- Card 2: Calendar (Large Center) -->
+                <div class="bento-card card-calendar">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                        <h3>Spending Calendar</h3>
+                        <span style="color: var(--text-muted);">${new Date().toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
+                    </div>
+                    <div class="calendar-grid">
+                        <div class="calendar-day-header">S</div>
+                        <div class="calendar-day-header">M</div>
+                        <div class="calendar-day-header">T</div>
+                        <div class="calendar-day-header">W</div>
+                        <div class="calendar-day-header">T</div>
+                        <div class="calendar-day-header">F</div>
+                        <div class="calendar-day-header">S</div>
+                        ${this.generateCalendarDays(
+            new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate(),
+            new Date(new Date().getFullYear(), new Date().getMonth(), 1).getDay(),
+            history,
+            new Date().getFullYear(),
+            new Date().getMonth()
+        )}
+                    </div>
+                </div>
+
+                <!-- Card 3: Stats (Top Right) -->
+                <div class="bento-card card-stats">
+                    <h3>Overview</h3>
+                    <div style="display: flex; flex-direction: column; gap: 1rem; justify-content: center; height: 100%;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: var(--text-muted);">Remaining</span>
+                            <span style="font-size: 1.5rem; font-weight: 600;">${data.currency}${data.totalRemaining.toFixed(0)}</span>
+                        </div>
+                        <div style="height: 1px; background: rgba(255,255,255,0.1);"></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span style="color: var(--text-muted);">Savings</span>
+                            <span style="font-size: 1.5rem; font-weight: 600; color: var(--accent-green);">${data.currency}${data.savingsPot.toFixed(0)}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 4: History (Bottom Right) -->
+                <div class="bento-card card-history">
+                    <h3>Recent Activity</h3>
+                    <div class="history-list">
+                        ${history.length === 0 ? '<p style="text-align: center; color: var(--text-muted);">No transactions.</p>' : ''}
+                        ${history.slice().reverse().slice(0, 4).map(entry => `
+                            <div class="history-item">
+                                <div>
+                                    <div style="font-weight: 600; font-size: 0.9rem;">${new Date(entry.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short' })}</div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted);">${entry.action}</div>
+                                </div>
+                                <div style="text-align: right;">
+                                    <div style="font-weight: 600;">$${entry.spent.toFixed(0)}</div>
+                                    <div style="font-size: 0.75rem; color: ${entry.diff >= 0 ? 'var(--accent-green)' : 'var(--accent-red)'};">
+                                        ${entry.diff >= 0 ? '+' : ''}${entry.diff.toFixed(0)}
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                <button id="history-btn" class="btn btn-secondary" style="padding: 1rem;">
-                    View History
-                </button>
-                <button id="end-day-btn" class="btn btn-primary" style="padding: 1rem; font-size: 1.1rem;">
-                    End Day
+            <!-- Floating Action Button for End Day -->
+            <div class="fab-container">
+                <button id="end-day-btn" class="btn-fab" title="End Day">
+                    <i class="ph ph-plus"></i>
                 </button>
             </div>
         `;
+
+        section.innerHTML = html;
         this.appContainer.appendChild(section);
+
+        // Animate Ring
+        setTimeout(() => {
+            const circle = section.querySelector('.progress-ring-circle');
+            if (circle) circle.style.strokeDashoffset = offset;
+        }, 100);
 
         document.getElementById('end-day-btn').addEventListener('click', () => {
             this.renderEndOfDayModal(data.dailyBudget);
         });
-
-        document.getElementById('history-btn').addEventListener('click', () => {
-            this.showView('history');
-        });
     },
 
     getActivityIcon(budget) {
-        if (budget > 50) return '🎬';
-        if (budget > 20) return '☕';
-        return '🌳';
+        if (budget > 50) return '<i class="ph ph-film-strip"></i>';
+        if (budget > 20) return '<i class="ph ph-coffee"></i>';
+        return '<i class="ph ph-tree"></i>';
     },
 
     getActivityTitle(budget) {
@@ -360,7 +426,7 @@ const UI = {
         if (diff >= 0) {
             // Under Budget (Savings)
             step2.innerHTML = `
-                <h2 style="color: var(--success);">You saved $${diff.toFixed(2)}!</h2>
+                <h2 style="color: var(--success);">You saved ${diff.toFixed(2)}!</h2>
                 <p>Great job! What should we do with it?</p>
                 
                 <div style="margin-top: 1.5rem; display: grid; gap: 1rem;">
@@ -386,7 +452,7 @@ const UI = {
             // Over Budget (Deficit)
             const deficit = Math.abs(diff);
             step2.innerHTML = `
-                <h2 style="color: var(--danger);">Over by $${deficit.toFixed(2)}</h2>
+                <h2 style="color: var(--danger);">Over by ${deficit.toFixed(2)}</h2>
                 <p>Don't worry, we can adjust.</p>
                 
                 <div style="margin-top: 1.5rem; display: grid; gap: 1rem;">
@@ -415,43 +481,38 @@ const UI = {
         this.showView('dashboard');
     },
 
-    renderHistory() {
-        const state = Storage.getState();
-        const history = state.dailyHistory || [];
+    generateCalendarDays(daysInMonth, firstDayIndex, history, year, month) {
+        let html = '';
+        const todayDate = new Date().getDate();
 
-        const section = document.createElement('section');
-        section.className = 'view active animate-fade-in';
-        section.innerHTML = `
-            <div class="glass-panel" style="min-height: 80vh;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
-                    <h2>History</h2>
-                    <button id="back-btn" class="btn btn-secondary" style="padding: 0.5rem 1rem;">Back</button>
-                </div>
-                
-                <div class="history-list" style="display: flex; flex-direction: column; gap: 1rem;">
-                    ${history.length === 0 ? '<p style="text-align: center; margin-top: 2rem;">No history yet.</p>' : ''}
-                    ${history.slice().reverse().map(entry => `
-                        <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: var(--radius-sm); display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <div style="font-weight: 600;">${new Date(entry.date).toLocaleDateString()}</div>
-                                <div style="font-size: 0.8rem; color: var(--text-muted); text-transform: capitalize;">${entry.action}</div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="font-weight: 600; color: var(--text-primary);">Spent: $${entry.spent.toFixed(2)}</div>
-                                <div style="font-size: 0.8rem; color: ${entry.diff >= 0 ? 'var(--success)' : 'var(--danger)'};">
-                                    ${entry.diff >= 0 ? 'Saved' : 'Over'}: $${Math.abs(entry.diff).toFixed(2)}
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
-            </div>
-        `;
-        this.appContainer.appendChild(section);
+        // Empty slots for previous month
+        for (let i = 0; i < firstDayIndex; i++) {
+            html += `<div></div>`;
+        }
 
-        document.getElementById('back-btn').addEventListener('click', () => {
-            this.showView('dashboard');
-        });
+        // Days
+        for (let day = 1; day <= daysInMonth; day++) {
+            const isToday = day === todayDate;
+
+            // Find history for this day
+            const entry = history.find(h => {
+                const hDate = new Date(h.date);
+                return hDate.getDate() === day && hDate.getMonth() === month && hDate.getFullYear() === year;
+            });
+
+            let statusClass = 'neutral';
+            if (entry) {
+                statusClass = entry.diff >= 0 ? 'success' : 'danger';
+            }
+
+            html += `
+                <div class="calendar-day ${isToday ? 'today' : ''} ${entry ? 'active' : ''}">
+                    <span>${day}</span>
+                    ${day < todayDate || entry ? `<div class="status-dot ${statusClass}"></div>` : ''}
+                </div>
+            `;
+        }
+        return html;
     }
 };
 
